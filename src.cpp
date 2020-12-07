@@ -45,6 +45,13 @@ class RubikCubeFace {
 			return column;
 		}
 
+		void setAdjacentFaces(RubikCubeFace* adj_up_face, RubikCubeFace* adj_left_face,
+													RubikCubeFace* adj_right_face, RubikCubeFace* adj_down_face) {
+			setAdjacentUpFace(adj_up_face);
+			setAdjacentLeftFace(adj_left_face);
+			setAdjacentRightFace(adj_right_face);
+			setAdjacentDownFace(adj_down_face);
+		}
 		void setAdjacentUpFace(RubikCubeFace* adj_up_face) { adj_up_face_ = adj_up_face; }
 		void setAdjacentLeftFace(RubikCubeFace* adj_left_face) { adj_left_face_ = adj_left_face; }
 		void setAdjacentRightFace(RubikCubeFace* adj_right_face) { adj_right_face_ = adj_right_face; }
@@ -66,6 +73,7 @@ class RubikCubeFace {
 
 class RubikCube {
 	public:
+		RubikCube() = delete;
 		RubikCube(int size) : size_(size) {
 			up_face_ = RubikCubeFace(size_, 'B');
 			left_face_ = RubikCubeFace(size_, 'W');
@@ -73,6 +81,13 @@ class RubikCube {
 			right_face_ = RubikCubeFace(size_, 'G');
 			back_face_ = RubikCubeFace(size_, 'Y');
 			down_face_ = RubikCubeFace(size_, 'R');
+
+			up_face_.setAdjacentFaces(&back_face_, &left_face_, &right_face_, &front_face_);
+			left_face_.setAdjacentFaces(&up_face_, &back_face_, &front_face_, &down_face_);
+			front_face_.setAdjacentFaces(&up_face_, &left_face_, &right_face_, &down_face_);
+			right_face_.setAdjacentFaces(&up_face_, &front_face_, &back_face_, &down_face_);
+			back_face_.setAdjacentFaces(&up_face_, &right_face_, &left_face_, &down_face_);
+			down_face_.setAdjacentFaces(&front_face_, &left_face_, &right_face_, &back_face_);
 		}
 
 		void suffle() {
@@ -82,54 +97,59 @@ class RubikCube {
 			const int width = 2 * size_ - 1;
 			string spaces = string(width, ' ');
 
-			for (int i = 0; i < size_; i++) {
+			for (int i = 0; i < size_; i++)
 				cout << spaces << spaces << spaces << up_face_.getRowToPrint(i) << '\n';
-			}
-
 			cout << '\n';
 
-			for (int i = 0; i < size_; i++) {
+			for (int i = 0; i < size_; i++)
 				cout << left_face_.getRowToPrint(i) << spaces << front_face_.getRowToPrint(i) << spaces
 					<< right_face_.getRowToPrint(i) << spaces << back_face_.getRowToPrint(i) << '\n';
-			}
-
 			cout << '\n';
 
-			for (int i = 0; i < size_; i++) {
+			for (int i = 0; i < size_; i++)
 				cout << spaces << spaces << spaces << down_face_.getRowToPrint(i) << '\n';
-			}
-
 			cout << '\n';
 		}
 
-		void rotateClockUp() {
-		}
-		void rotateUnclockUp() {
+		void rotateUp(bool clock) {
+			string adj_up_edge = up_face_.getAdjacentUpFace()->getRow(0);
+			string adj_left_edge = up_face_.getAdjacentLeftFace()->getRow(0);
+			string adj_right_edge = up_face_.getAdjacentRightFace()->getRow(0);
+			string adj_down_edge = up_face_.getAdjacentDownFace()->getRow(0);
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+			reverse(adj_right_edge.begin(), adj_right_edge.end());
+
+			if (clock) {
+				rotateClockMainFace(up_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(up_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+			reverse(adj_right_edge.begin(), adj_right_edge.end());
+
+			up_face_.getAdjacentUpFace()->setRow(0, adj_up_edge);
+			up_face_.getAdjacentLeftFace()->setRow(0, adj_left_edge);
+			up_face_.getAdjacentRightFace()->setRow(0, adj_right_edge);
+			up_face_.getAdjacentDownFace()->setRow(0, adj_down_edge);
 		}
 
-		void rotateClockFront() {
-		}
-		void rotateUnclockFront() {
+		void rotateFront(bool clock) {
 		}
 
-		void rotateClockLeft() {
-		}
-		void rotateUnclockLeft() {
+		void rotateLeft(bool clock) {
 		}
 
-		void rotateClockRight() {
-		}
-		void rotateUnclockRight() {
+		void rotateRight(bool clock) {
 		}
 
-		void rotateClockBack() {
-		}
-		void rotateUnclockBack() {
+		void rotateBack(bool clock) {
 		}
 
-		void rotateClockDown() {
-		}
-		void rotateUnclockDown() {
+		void rotateDown(bool clock) {
 		}
 
 	private:
@@ -140,6 +160,27 @@ class RubikCube {
 		RubikCubeFace	right_face_; // R
 		RubikCubeFace back_face_; // B
 		RubikCubeFace down_face_; // D
+
+		void rotateClockMainFace(RubikCubeFace& main_face) {
+		}
+		void rotateUnclockMainFace(RubikCubeFace& main_face) {
+		}
+
+		void rotateClockAdjacentEdges(string& up, string& left, string& right, string& down) {
+			string tmp = up;
+			up = left;
+			left = down;
+			down = right;
+			right = tmp;
+		}
+
+		void rotateUnclockAdjacentEdges(string& up, string& left, string& right, string& down) {
+			string tmp = up;
+			up = right;
+			right = down;
+			down = left;
+			left = tmp;
+		}
 };
 
 int main() {
