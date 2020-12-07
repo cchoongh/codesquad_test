@@ -15,6 +15,16 @@ class RubikCubeFace {
 		RubikCubeFace(const RubikCubeFace& src) = default;
 		RubikCubeFace& operator=(const RubikCubeFace& rhs) = default;
 
+		string getRowString(int idx) {
+			string ret;
+			for (int i = 0; i < size_; i++) {
+				ret += face_[idx][i];
+				ret += ' ';
+			}
+			ret.pop_back();
+			return ret;
+		}
+
 		void setRow(int idx, const string& row) {
 		}
 		void setColumn(int idx, const string& column) {
@@ -62,6 +72,30 @@ class RubikCube {
 		void suffle() {
 		}
 
+		void print() {
+			const int width = 2 * size_ - 1;
+			string spaces = string(width, ' ');
+
+			for (int i = 0; i < size_; i++) {
+				cout << spaces << spaces << spaces << up_face_.getRowString(i) << '\n';
+			}
+
+			cout << '\n';
+
+			for (int i = 0; i < size_; i++) {
+				cout << left_face_.getRowString(i) << spaces << front_face_.getRowString(i) << spaces
+					<< right_face_.getRowString(i) << spaces << back_face_.getRowString(i) << '\n';
+			}
+
+			cout << '\n';
+
+			for (int i = 0; i < size_; i++) {
+				cout << spaces << spaces << spaces << down_face_.getRowString(i) << '\n';
+			}
+
+			cout << '\n';
+		}
+
 		void rotateClockUp() {
 		}
 		void rotateUnclockUp() {
@@ -105,6 +139,7 @@ class RubikCube {
 int main() {
 	RubikCube rubik_cube = RubikCube(3);
 	rubik_cube.suffle();
+	rubik_cube.print();
 
 	
 }
