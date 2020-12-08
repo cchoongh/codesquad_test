@@ -108,7 +108,6 @@ class RubikCube {
 
 			for (int i = 0; i < size_; i++)
 				cout << spaces << spaces << spaces << down_face_.getRowToPrint(i) << '\n';
-			cout << '\n';
 		}
 
 		void rotateUp(bool clock) {
@@ -138,6 +137,23 @@ class RubikCube {
 		}
 
 		void rotateFront(bool clock) {
+			std::string adj_up_edge = front_face_.getAdjacentUpFace()->getRow(size_ - 1);
+			std::string adj_left_edge = front_face_.getAdjacentLeftFace()->getColumn(size_ - 1);
+			std::string adj_right_edge = front_face_.getAdjacentRightFace()->getColumn(0);
+			std::string adj_down_edge = front_face_.getAdjacentDownFace()->getRow(0);
+
+			if (clock) {
+				rotateClockMainFace(up_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(up_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			front_face_.getAdjacentUpFace()->setRow(size_ - 1, adj_up_edge);
+			front_face_.getAdjacentLeftFace()->setColumn(size_ - 1, adj_left_edge);
+			front_face_.getAdjacentRightFace()->setColumn(0, adj_right_edge);
+			front_face_.getAdjacentDownFace()->setRow(0, adj_down_edge);
 		}
 
 		void rotateLeft(bool clock) {
@@ -188,5 +204,47 @@ int main() {
 	rubik_cube.suffle();
 	rubik_cube.print();
 
+//TODO
+//	int operate_cnt = 0;
+//	time_t start_time = time(0);
 	
+	std::string input;
+	while (cout << "\nCUBE> " && cin >> input && input != "Q") {
+		for (int i = 0; i < input.size(); i++) {
+			char inst = input[i]; // instruction
+			bool clock = true;
+			bool degree180 = false;
+
+			if (i < input.size() - 1 && input[i + 1] == '\'') {
+				clock = false;
+				i++;
+			}
+
+			if (i < input.size() - 1 && input[i + 1] == '2') {
+				degree180 = true;
+				i++;
+			}
+
+			cout << '\n' << inst << (clock ? "" : "'") << (degree180 ? "2" : "") << '\n';
+			
+			switch (inst) {
+				case 'F':
+					rubik_cube.rotateFront(clock);
+					if (degree180) rubik_cube.rotateFront(clock);
+					break;
+				case 'R':
+				case 'U':
+				case 'B':
+				case 'L':
+				case 'D':
+				default:
+					cerr << "(ignore bad instruction: " << inst << ")\n";
+					break;
+			}
+
+			rubik_cube.print();
+		}
+	}
+
+	cout << "Thank you for using it!" << '\n';
 }
