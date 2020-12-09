@@ -98,7 +98,7 @@ class RubikCube {
 			string spaces = string(width, ' ');
 
 			for (int i = 0; i < size_; i++)
-				cout << spaces << spaces << spaces << up_face_.getRowToPrint(i) << '\n';
+				cout << spaces << spaces << up_face_.getRowToPrint(i) << '\n';
 			cout << '\n';
 
 			for (int i = 0; i < size_; i++)
@@ -107,7 +107,7 @@ class RubikCube {
 			cout << '\n';
 
 			for (int i = 0; i < size_; i++)
-				cout << spaces << spaces << spaces << down_face_.getRowToPrint(i) << '\n';
+				cout << spaces << spaces << down_face_.getRowToPrint(i) << '\n';
 		}
 
 		void rotateUp(bool clock) {
@@ -157,15 +157,103 @@ class RubikCube {
 		}
 
 		void rotateLeft(bool clock) {
+			std::string adj_up_edge = left_face_.getAdjacentUpFace()->getColumn(0);
+			std::string adj_left_edge = left_face_.getAdjacentLeftFace()->getColumn(size_ - 1);
+			std::string adj_right_edge = left_face_.getAdjacentRightFace()->getColumn(0);
+			std::string adj_down_edge = left_face_.getAdjacentDownFace()->getColumn(0);
+
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			if (clock) {
+				rotateClockMainFace(left_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(left_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			left_face_.getAdjacentUpFace()->setColumn(0, adj_up_edge);
+			left_face_.getAdjacentLeftFace()->setColumn(size_ - 1, adj_left_edge);
+			left_face_.getAdjacentRightFace()->setColumn(0, adj_right_edge);
+			left_face_.getAdjacentDownFace()->setRow(0, adj_down_edge);
 		}
 
 		void rotateRight(bool clock) {
+			std::string adj_up_edge = right_face_.getAdjacentUpFace()->getColumn(size_ - 1);
+			std::string adj_left_edge = right_face_.getAdjacentLeftFace()->getColumn(size_ - 1);
+			std::string adj_right_edge = right_face_.getAdjacentRightFace()->getColumn(0);
+			std::string adj_down_edge = left_face_.getAdjacentDownFace()->getColumn(size_ - 1);
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+
+			if (clock) {
+				rotateClockMainFace(right_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(right_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+
+			right_face_.getAdjacentUpFace()->setColumn(size_ - 1, adj_up_edge);
+			right_face_.getAdjacentLeftFace()->setColumn(size_ - 1, adj_left_edge);
+			right_face_.getAdjacentRightFace()->setColumn(0, adj_right_edge);
+			right_face_.getAdjacentDownFace()->setColumn(size_ - 1, adj_down_edge);
 		}
 
 		void rotateBack(bool clock) {
+			std::string adj_up_edge = back_face_.getAdjacentUpFace()->getRow(0);
+			std::string adj_left_edge = back_face_.getAdjacentLeftFace()->getColumn(size_ - 1);
+			std::string adj_right_edge = back_face_.getAdjacentRightFace()->getColumn(0);
+			std::string adj_down_edge = back_face_.getAdjacentDownFace()->getRow(size_ - 1);
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			if (clock) {
+				rotateClockMainFace(back_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(back_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			reverse(adj_up_edge.begin(), adj_up_edge.end());
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			back_face_.getAdjacentUpFace()->setRow(0, adj_up_edge);
+			back_face_.getAdjacentLeftFace()->setColumn(size_ - 1, adj_left_edge);
+			back_face_.getAdjacentRightFace()->setColumn(0, adj_right_edge);
+			back_face_.getAdjacentDownFace()->setRow(size_ - 1, adj_down_edge);
 		}
 
 		void rotateDown(bool clock) {
+			std::string adj_up_edge = down_face_.getAdjacentUpFace()->getRow(size_ - 1);
+			std::string adj_left_edge = down_face_.getAdjacentLeftFace()->getRow(size_ - 1);
+			std::string adj_right_edge = down_face_.getAdjacentRightFace()->getRow(size_ - 1);
+			std::string adj_down_edge = down_face_.getAdjacentDownFace()->getRow(size_ - 1);
+
+			reverse(adj_left_edge.begin(), adj_left_edge.end());
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			if (clock) {
+				rotateClockMainFace(down_face_);
+				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			} else {
+				rotateUnclockMainFace(down_face_);
+				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
+			}
+
+			reverse(adj_left_edge.begin(), adj_left_edge.end());
+			reverse(adj_down_edge.begin(), adj_down_edge.end());
+
+			down_face_.getAdjacentUpFace()->setRow(size_ - 1, adj_up_edge);
+			down_face_.getAdjacentLeftFace()->setRow(size_ - 1, adj_left_edge);
+			down_face_.getAdjacentRightFace()->setRow(size_ - 1, adj_right_edge);
+			down_face_.getAdjacentDownFace()->setRow(size_ - 1, adj_down_edge);
 		}
 
 	private:
@@ -233,10 +321,25 @@ int main() {
 					if (degree180) rubik_cube.rotateFront(clock);
 					break;
 				case 'R':
+					rubik_cube.rotateRight(clock);
+					if (degree180) rubik_cube.rotateRight(clock);
+					break;
 				case 'U':
+					rubik_cube.rotateUp(clock);
+					if (degree180) rubik_cube.rotateUp(clock);
+					break;
 				case 'B':
+					rubik_cube.rotateBack(clock);
+					if (degree180) rubik_cube.rotateBack(clock);
+					break;
 				case 'L':
+					rubik_cube.rotateLeft(clock);
+					if (degree180) rubik_cube.rotateLeft(clock);
+					break;
 				case 'D':
+					rubik_cube.rotateDown(clock);
+					if (degree180) rubik_cube.rotateDown(clock);
+					break;
 				default:
 					cerr << "(ignore bad instruction: " << inst << ")\n";
 					break;
