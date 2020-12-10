@@ -10,15 +10,7 @@ int main() {
 	int rot; // rotate
 	char dir; // direction
 
-	while (true) {
-		cin >> word >> rot >> dir;
-
-		if (!cin.good()) {
-			cerr << "Bad input, check and retry!" << '\n';
-			cin.clear();
-			continue;
-		}
-
+	while (cout << "\n> " && cin >> word >> rot >> dir) {
 		dir = toupper(dir);
 
 		if (toupper(dir) == 'R') {
@@ -31,8 +23,6 @@ int main() {
 
 		while (rot < 0) rot += word.size();
 		while (rot > word.size()) rot -= word.size();
-
-		cout << "rot: " << rot << '\n';
 
 		rotate(word.begin(), word.begin() + rot, word.end());
 		cout << word << '\n';
