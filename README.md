@@ -35,16 +35,17 @@
   ```
 
 * 명령어 문자열을 `input`에 받고, 루프를 돌면서 각 문자에 맞는 동작 실행
- - 따옴표(`quotes`)인 경우도 고려한 로직 구현
- 
-  ```
-  bool quotes = false;
- 
-  if (i < input.size() - 1 && input[i + 1] == '\'') {
-     quotes = true;
-		i++;
-  }
-  ```
+  - 따옴표(`quotes`)인 경우도 고려한 로직 구현
+  
+   
+    ```
+    bool quotes = false;
+    
+    if (i < input.size() - 1 && input[i + 1] == '\'') {
+        quotes = true;
+ 	   i++;
+    }
+    ```
 
 ## 구동 캡처 화면
 
