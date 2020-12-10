@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 #include <ctime>
+#include <cstdlib>
+#include <iomanip>
 
 using namespace std;
 
@@ -25,6 +27,19 @@ class RubikCubeFace {
 			return row;
 		}
 
+		bool isFitted() {
+			const char element = face_[0][0];
+
+			for (int r = 0; r < size_; r++) {
+				for (int c = 0; c < size_; c++) {
+					if (face_[r][c] != element)
+						return false;
+				}
+			}
+
+			return true;
+		}
+
 		void setRow(int idx, const string& row) {
 			face_[idx] = row;
 		}
@@ -43,6 +58,28 @@ class RubikCubeFace {
 				column += face_[i][idx];
 			}
 			return column;
+		}
+
+		void setOutLine(const string& out_line) {
+			face_[0] = out_line.substr(0, size_);
+			int r = 1; // row
+			int c = size_ - 1; // column
+			int idx = size_; // index of 'out_line'
+
+			while (r + 1 < size_) { face_[r][c] = out_line[idx++]; r++; }
+			while (c > 0) { face_[r][c] = out_line[idx++]; c--; }
+			while (r > 0) { face_[r][c] = out_line[idx++]; r--; }
+		}
+		string getOutLine() {
+			string out_line = getRow(0);
+			int r = 1; // row
+			int c = size_ - 1; // column
+
+			while (r + 1 < size_) { out_line += face_[r][c]; r++; }
+			while (c > 0) { out_line += face_[r][c]; c--; }
+			while (r > 0) { out_line += face_[r][c]; r--; }
+		
+			return out_line;
 		}
 
 		void setAdjacentFaces(RubikCubeFace* adj_up_face, RubikCubeFace* adj_left_face,
@@ -91,6 +128,49 @@ class RubikCube {
 		}
 
 		void suffle() {
+			srand(time(NULL));
+			int num_rotate = 500;
+
+			while (num_rotate-- > 0) {
+				int rand_rotate = rand() % 12;
+
+				switch (rand_rotate) {
+					case 0:
+						rotateFront(true); break;
+					case 1:
+						rotateFront(false); break;
+					case 2:
+						rotateLeft(true); break;
+					case 3:
+						rotateLeft(false); break;
+					case 4:
+						rotateRight(true); break;
+					case 5:
+						rotateRight(false); break;
+					case 6:
+						rotateUp(true); break;
+					case 7:
+						rotateUp(false); break;
+					case 8:
+						rotateDown(true); break;
+					case 9:
+						rotateDown(false); break;
+					case 10:
+						rotateBack(true); break;
+					case 11:
+						rotateBack(false); break;
+				}
+			}
+		}
+
+		bool isFitted() {
+			bool is_fitted = front_face_.isFitted();
+			is_fitted = is_fitted && left_face_.isFitted();
+			is_fitted = is_fitted && right_face_.isFitted();
+			is_fitted = is_fitted && up_face_.isFitted();
+			is_fitted = is_fitted && down_face_.isFitted();
+			is_fitted = is_fitted && back_face_.isFitted();
+			return is_fitted;
 		}
 
 		void print() {
@@ -143,10 +223,10 @@ class RubikCube {
 			std::string adj_down_edge = front_face_.getAdjacentDownFace()->getRow(0);
 
 			if (clock) {
-				rotateClockMainFace(up_face_);
+				rotateClockMainFace(front_face_);
 				rotateClockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
 			} else {
-				rotateUnclockMainFace(up_face_);
+				rotateUnclockMainFace(front_face_);
 				rotateUnclockAdjacentEdges(adj_up_edge, adj_left_edge, adj_right_edge, adj_down_edge);
 			}
 
@@ -177,14 +257,14 @@ class RubikCube {
 			left_face_.getAdjacentUpFace()->setColumn(0, adj_up_edge);
 			left_face_.getAdjacentLeftFace()->setColumn(size_ - 1, adj_left_edge);
 			left_face_.getAdjacentRightFace()->setColumn(0, adj_right_edge);
-			left_face_.getAdjacentDownFace()->setRow(0, adj_down_edge);
+			left_face_.getAdjacentDownFace()->setColumn(0, adj_down_edge);
 		}
 
 		void rotateRight(bool clock) {
 			std::string adj_up_edge = right_face_.getAdjacentUpFace()->getColumn(size_ - 1);
 			std::string adj_left_edge = right_face_.getAdjacentLeftFace()->getColumn(size_ - 1);
 			std::string adj_right_edge = right_face_.getAdjacentRightFace()->getColumn(0);
-			std::string adj_down_edge = left_face_.getAdjacentDownFace()->getColumn(size_ - 1);
+			std::string adj_down_edge = right_face_.getAdjacentDownFace()->getColumn(size_ - 1);
 
 			reverse(adj_up_edge.begin(), adj_up_edge.end());
 
@@ -266,8 +346,14 @@ class RubikCube {
 		RubikCubeFace down_face_; // D
 
 		void rotateClockMainFace(RubikCubeFace& main_face) {
+			string out_line = main_face.getOutLine();
+			rotate(out_line.begin(), out_line.begin() + 3 * (size_ - 1), out_line.end());
+			main_face.setOutLine(out_line);
 		}
 		void rotateUnclockMainFace(RubikCubeFace& main_face) {
+			string out_line = main_face.getOutLine();
+			rotate(out_line.begin(), out_line.begin() + size_ - 1, out_line.end());
+			main_face.setOutLine(out_line);
 		}
 
 		void rotateClockAdjacentEdges(string& up, string& left, string& right, string& down) {
@@ -289,19 +375,26 @@ class RubikCube {
 
 int main() {
 	RubikCube rubik_cube = RubikCube(3);
-	rubik_cube.suffle();
+	
+	cout << "[Before suffling]" << '\n';
 	rubik_cube.print();
 
-//TODO
-//	int operate_cnt = 0;
-//	time_t start_time = time(0);
+	rubik_cube.suffle();
+
+	cout << "\n[After suffling]" << '\n';
+	rubik_cube.print();
+
+	int operate_cnt = 0;
+	time_t start_time = time(NULL);
+	bool is_fitted = false;
 	
 	std::string input;
-	while (cout << "\nCUBE> " && cin >> input && input != "Q") {
+	while (!is_fitted && cout << "\nCUBE> " && cin >> input && input != "Q") {
 		for (int i = 0; i < input.size(); i++) {
 			char inst = input[i]; // instruction
 			bool clock = true;
 			bool degree180 = false;
+			bool success = true;
 
 			if (i < input.size() - 1 && input[i + 1] == '\'') {
 				clock = false;
@@ -342,12 +435,29 @@ int main() {
 					break;
 				default:
 					cerr << "(ignore bad instruction: " << inst << ")\n";
+					success = false;
 					break;
 			}
 
-			rubik_cube.print();
+			if (success) {
+				rubik_cube.print();
+				operate_cnt++;
+			}
+
+			if (rubik_cube.isFitted()) {
+				cout << "Congratulations! The cube is fitted!" << '\n';
+				is_fitted = true;
+				break;
+			}
 		}
+
+		input.clear();
 	}
 
-	cout << "Thank you for using it!" << '\n';
+	time_t end_time = time(NULL) - start_time;
+	struct tm* tm = localtime(&end_time);
+	cout << "Elapsed time: " << (tm->tm_min < 10 ? "0" : "") << tm->tm_min << ":"
+		<< (tm->tm_sec < 10 ? "0" : "") << tm->tm_sec << '\n';
+	cout << "Operation count: " << operate_cnt << '\n';
+	cout << "Thank you for using my Rubik's cube!" << '\n';
 }
