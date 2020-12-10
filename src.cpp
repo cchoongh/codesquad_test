@@ -29,20 +29,20 @@ class Matrix {
 
 		void rotateLeftTopRow() {
 			string& top_row = matrix_[0];
-			rotate(top_row.begin(), top_row.begin() + size_ - 1, top_row.end());
+			rotate(top_row.begin(), top_row.begin() + 1, top_row.end());
 		};
 		void rotateRightTopRow() {
 			string& top_row = matrix_[0];
-			rotate(top_row.begin(), top_row.begin() + 1, top_row.end());
+			rotate(top_row.begin(), top_row.begin() + size_ - 1, top_row.end());
 		};
 
 		void rotateLeftBottomRow() {
 			string& bottom_row = matrix_[size_ - 1];
-			rotate(bottom_row.begin(), bottom_row.begin() + size_ - 1, bottom_row.end());
+			rotate(bottom_row.begin(), bottom_row.begin() + 1, bottom_row.end());
 		};
 		void rotateRightBottomRow() {
 			string& bottom_row = matrix_[size_ - 1];
-			rotate(bottom_row.begin(), bottom_row.begin() + 1, bottom_row.end());
+			rotate(bottom_row.begin(), bottom_row.begin() + size_ - 1, bottom_row.end());
 		};
 
 		void rotateUpLeftColumn() {
@@ -80,7 +80,6 @@ class Matrix {
 				matrix_[i][col] = input[i];
 			}
 		}
-
 		void getColumn(int col, string& output) {
 			for (int i = 0; i < size_; i++) {
 				output.push_back(matrix_[i][col]);
