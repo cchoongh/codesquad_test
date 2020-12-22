@@ -1,0 +1,61 @@
+lower_odd_word = "abcdefghi"
+lower_even_word = "abcdefgh"
+upper_odd_word = "ABCDEFGHI"
+upper_even_word = "ABCDEFGH"
+
+function testUpperDirection {
+  input "{lower_even_word} 3 R"
+  input "{lower_odd_word} 4 R"
+  input "{upper_even_word} 3 R"
+  input "{upper_odd_word} 4 R"
+  input "{lower_even_word} 3 L"
+  input "{lower_odd_word} 4 L"
+  input "{upper_even_word} 3 L"
+  input "{upper_odd_word} 4 L"
+  
+  expect "ghiabcdef"
+  expect "efghabcd"
+  expect "GHIABCDEFG"
+  expect "EFGHABCD"
+  expect "defghiabc"
+  expect "efghabcd"
+  expect "DEFGHIABC"
+  expect "EFGHABCD"
+}
+
+function testLowerDirection {
+  input "{lower_even_word} 3 r"
+  input "{lower_odd_word} 4 l"
+  
+  expect "ghiabcdef"
+  expect "efghabcd"
+}
+
+function testSmallNegativeRotation {
+  input "{lower_even_word} -3 l"
+  input "{lower_odd_word} -5 r
+  input "{lower_even_word} -1 l"
+  input "{lower_odd_word} -6 r"
+  
+  expect "ghiabcdef"
+  expect "fghabcde"
+  ...
+}
+
+function testBigPositiveRotation {
+  input "{lower_even_word} 100 r"
+  input "{lower_even_word} 150 l"
+  input "{lower_odd_word} 500 R"
+  
+  expect "efghabcd"
+  ...
+}
+
+function testBigNegativeRotation {
+  input "{lower_even_word} -100 l"
+  ...
+  
+  expect "efghabcd"
+  ...
+}
+
